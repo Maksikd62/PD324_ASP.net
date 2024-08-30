@@ -31,6 +31,12 @@
     <div class="form-group" style="width: 40%">
         <label asp-for="Product.Image" class="m-1">Image</label>
         <input type="file" class="form-control m-1" name="files" />
+        @if (!string.IsNullOrEmpty(Model.Product.Image))
+        {
+            <div style="margin-left: 10px;">
+                <img src="@Url.Content(Model.Product.Image)" alt="Current Image" style="max-width: 200px;" />
+            </div>
+        }
     </div>
     <button type="submit" class="btn btn-primary m-2">Save</button>
     <a asp-controller="Product" asp-action="Index" class="btn btn-secondary m-2">Back</a>

@@ -111,49 +111,52 @@ namespace PD324_01.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Update(CreateProductVM model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var files = HttpContext.Request.Form.Files;
-                var image = files.Count() > 0 ? files[0] : null;
-                var rootPath = _webHostEnvironment.WebRootPath;
-                string fileName = "";
-
-                if (image != null)
+                model.ListItems = _context.Categories.Select(c => new SelectListItem
                 {
-                    var types = image.ContentType.Split("/");
-                    if (types[0] == "image")
-                    {
-                        fileName = Guid.NewGuid().ToString() + "." + types[1];
-                        string oldFileName = model.Product.Image;
-
-                        if (!string.IsNullOrEmpty(oldFileName))
-                        {
-                            string oldImagePath = Path.Combine(rootPath, Data.Constants.FilePaths.ProductsImage, oldFileName);
-
-                            if (System.IO.File.Exists(oldImagePath))
-                            {
-                                System.IO.File.Delete(oldImagePath);
-                            }
-                        }
-
-                        string imagePath = Path.Combine(rootPath, Data.Constants.FilePaths.ProductsImage, fileName);
-
-                        using (var stream = System.IO.File.Create(imagePath))
-                        {
-                            image.OpenReadStream().CopyTo(stream);
-                        }
-                    }
-                }
-
-                model.Product.Image = fileName;
-                _context.Products.Update(model.Product);
-                _context.SaveChanges();
-
-                return RedirectToAction("Index");
+                    Text = c.Name,
+                    Value = c.Id.ToString()
+                });
+                return View(model);
             }
 
-            return View(model);
+            var files = HttpContext.Request.Form.Files;
+            var image = files.Count() > 0 ? files[0] : null;
+
+            if (image != null)
+            {
+                var types = image.ContentType.Split("/");
+                if (types[0] == "image")
+                {
+                    var newFileName = Guid.NewGuid().ToString() + "." + types[1];
+                    var rootPath = _webHostEnvironment.WebRootPath;
+                    var imagePath = Path.Combine(rootPath, Data.Constants.FilePaths.ProductsImage, newFileName);
+
+                    if (!string.IsNullOrEmpty(model.Product.Image))
+                    {
+                        var oldImagePath = Path.Combine(rootPath, Data.Constants.FilePaths.ProductsImage, model.Product.Image);
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    using (var stream = System.IO.File.Create(imagePath))
+                    {
+                        image.OpenReadStream().CopyTo(stream);
+                    }
+
+                    model.Product.Image = newFileName;
+                }
+            }
+
+            _context.Products.Update(model.Product);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
+
 
 
         public IActionResult Delete(int? id)
