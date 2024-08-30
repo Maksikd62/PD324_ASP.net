@@ -198,5 +198,25 @@ namespace PD324_01.Controllers
 
             return RedirectToAction("Index");
         }
+
+        public IActionResult Detail(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = _context.Products
+                                  .Include(p => p.Category)
+                                  .AsNoTracking()
+                                  .FirstOrDefault(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace PD324_01.Repositories
 
         public IEnumerable<Category> GetAll()
         {
-            return _context.Categories.ToList();
+            return _context.Categories.AsNoTracking();
         }
 
         public void Add(Category category)

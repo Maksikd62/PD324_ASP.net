@@ -12,6 +12,7 @@ namespace PD324_01.Models
         [ValidateNever]
         [MaxLength(255)]
         public string Name { get; set; }
+        [ValidateNever]
         public string Description { get; set; }
         [ValidateNever]
         public decimal Price { get; set; }
